@@ -1,0 +1,118 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOkqKH+6qrnberTOJ348RyN",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/pavlov22/bibizian/blob/main/%D0%BF%D0%B7%E2%84%96%202\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 8,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "V9EKjYj4dyKy",
+        "outputId": "0c6498fa-d16a-493b-ef51-d154e9695e6c"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Успішна аутентифікація: john_doe\n"
+          ]
+        }
+      ],
+      "source": [
+        "import hashlib\n",
+        "\n",
+        "class User:\n",
+        "    def __init__(self, username, password, is_active=True):\n",
+        "        self.username = username\n",
+        "        self.password_hash = self._hash_password(password)\n",
+        "        self.is_active = is_active\n",
+        "\n",
+        "    def _hash_password(self, password):\n",
+        "        return hashlib.sha256(password.encode()).hexdigest()\n",
+        "\n",
+        "    def verify_password(self, password):\n",
+        "        return self.password_hash == self._hash_password(password)\n",
+        "\n",
+        "class Administrator(User):\n",
+        "    def __init__(self, username, password, is_active=True):\n",
+        "        super().__init__(username, password, is_active)\n",
+        "        self.permissions = []\n",
+        "\n",
+        "    def add_permission(self, permission):\n",
+        "        self.permissions.append(permission)\n",
+        "\n",
+        "class RegularUser(User):\n",
+        "    def __init__(self, username, password, is_active=True):\n",
+        "        super().__init__(username, password, is_active)\n",
+        "        self.last_login = None\n",
+        "\n",
+        "    def set_last_login(self, date):\n",
+        "        self.last_login = date\n",
+        "\n",
+        "class GuestUser(User):\n",
+        "    def __init__(self, username):\n",
+        "        super().__init__(username, password='', is_active=False)\n",
+        "\n",
+        "class AccessControl:\n",
+        "    def __init__(self):\n",
+        "        self.users = {}\n",
+        "\n",
+        "    def add_user(self, user):\n",
+        "        self.users[user.username] = user\n",
+        "\n",
+        "    def authenticate_user(self, username, password):\n",
+        "        user = self.users.get(username)\n",
+        "        if user and user.verify_password(password) and user.is_active:\n",
+        "            return user\n",
+        "        return None\n",
+        "\n",
+        "# Приклад використання:\n",
+        "if __name__ == \"__main__\":\n",
+        "    admin = Administrator(\"admin\", \"adminpass\")\n",
+        "    admin.add_permission(\"manage_users\")\n",
+        "\n",
+        "    user = RegularUser(\"john_doe\", \"secure123\")\n",
+        "    guest = GuestUser(\"guest_user\")\n",
+        "\n",
+        "    ac = AccessControl()\n",
+        "    ac.add_user(admin)\n",
+        "    ac.add_user(user)\n",
+        "    ac.add_user(guest)\n",
+        "\n",
+        "    # Аутентифікація\n",
+        "    authenticated = ac.authenticate_user(\"john_doe\", \"secure123\")\n",
+        "    if authenticated:\n",
+        "        print(f\"Успішна аутентифікація: {authenticated.username}\")\n",
+        "    else:\n",
+        "        print(\"Помилка аутентифікації\")\n"
+      ]
+    }
+  ]
+}
