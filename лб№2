@@ -1,0 +1,147 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMiNj1OdPmJ0JaiRRwCf2Ie",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/pavlov22/bibizian/blob/main/%D0%BB%D0%B1%E2%84%962\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 6,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "V9EKjYj4dyKy",
+        "outputId": "5e70748b-65d9-4801-cbea-d21891ecf8b3"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "[1] Аналіз лог-файлу:\n",
+            "[1] Файл не знайдено: apache_logs.txt\n",
+            "\n",
+            "[2] SHA256 хеш файлу:\n",
+            "[2] Файл не знайдено: apache_logs.txt\n",
+            "\n",
+            "[3] Фільтрація дозволених IP:\n",
+            "[3] Файл не знайдено: apache_logs.txt\n",
+            "Результати збережено у файл 'filtered_ips.txt'\n"
+          ]
+        }
+      ],
+      "source": [
+        "import hashlib\n",
+        "\n",
+        "# ===============================\n",
+        "# Завдання 1: Аналіз лог-файлів\n",
+        "# ===============================\n",
+        "def analyze_log_file(log_file_path):\n",
+        "    code_counts = {}\n",
+        "    try:\n",
+        "        with open(log_file_path, 'r') as file:\n",
+        "            for line in file:\n",
+        "                parts = line.strip().split()\n",
+        "                if len(parts) >= 9:\n",
+        "                    code = parts[-2]  # Код відповіді (наприклад, 200, 404)\n",
+        "                    if code.isdigit():\n",
+        "                        code_counts[code] = code_counts.get(code, 0) + 1\n",
+        "    except FileNotFoundError:\n",
+        "        print(f\"[1] Файл не знайдено: {log_file_path}\")\n",
+        "    except IOError:\n",
+        "        print(f\"[1] Помилка читання файлу: {log_file_path}\")\n",
+        "    return code_counts\n",
+        "\n",
+        "\n",
+        "# ===============================\n",
+        "# Завдання 2: Генератор хешів файлів\n",
+        "# ===============================\n",
+        "def generate_file_hashes(*file_paths):\n",
+        "    hashes = {}\n",
+        "    for path in file_paths:\n",
+        "        try:\n",
+        "            with open(path, 'rb') as file:\n",
+        "                content = file.read()\n",
+        "                sha256_hash = hashlib.sha256(content).hexdigest()\n",
+        "                hashes[path] = sha256_hash\n",
+        "        except FileNotFoundError:\n",
+        "            print(f\"[2] Файл не знайдено: {path}\")\n",
+        "        except IOError:\n",
+        "            print(f\"[2] Помилка читання файлу: {path}\")\n",
+        "    return hashes\n",
+        "\n",
+        "\n",
+        "# ===============================\n",
+        "# Завдання 3: Фільтрація IP-адрес з логів\n",
+        "# ===============================\n",
+        "def filter_ips(input_file_path, output_file_path, allowed_ips):\n",
+        "    ip_counts = {}\n",
+        "    try:\n",
+        "        with open(input_file_path, 'r') as infile:\n",
+        "            for line in infile:\n",
+        "                parts = line.strip().split()\n",
+        "                if parts:\n",
+        "                    ip = parts[0]\n",
+        "                    if ip in allowed_ips:\n",
+        "                        ip_counts[ip] = ip_counts.get(ip, 0) + 1\n",
+        "        with open(output_file_path, 'w') as outfile:\n",
+        "            for ip, count in ip_counts.items():\n",
+        "                outfile.write(f\"{ip} - {count}\\n\")\n",
+        "    except FileNotFoundError:\n",
+        "        print(f\"[3] Файл не знайдено: {input_file_path}\")\n",
+        "    except IOError:\n",
+        "        print(f\"[3] Помилка читання або запису: {input_file_path} або {output_file_path}\")\n",
+        "\n",
+        "\n",
+        "# ===============================\n",
+        "# Приклад використання\n",
+        "# ===============================\n",
+        "if __name__ == \"__main__\":\n",
+        "    LOG_FILE = \"apache_logs.txt\"\n",
+        "\n",
+        "    # === Завдання 1 ===\n",
+        "    print(\"\\n[1] Аналіз лог-файлу:\")\n",
+        "    status_counts = analyze_log_file(LOG_FILE)\n",
+        "    for code, count in status_counts.items():\n",
+        "        print(f\"Код {code}: {count} запитів\")\n",
+        "\n",
+        "    # === Завдання 2 ===\n",
+        "    print(\"\\n[2] SHA256 хеш файлу:\")\n",
+        "    hashes = generate_file_hashes(LOG_FILE)\n",
+        "    for file, hash_value in hashes.items():\n",
+        "        print(f\"{file}: {hash_value}\")\n",
+        "\n",
+        "    # === Завдання 3 ===\n",
+        "    print(\"\\n[3] Фільтрація дозволених IP:\")\n",
+        "    allowed = [\"83.149.9.216\", \"93.114.45.13\", \"66.249.73.135\"]\n",
+        "    output_file = \"filtered_ips.txt\"\n",
+        "    filter_ips(LOG_FILE, output_file, allowed)\n",
+        "    print(f\"Результати збережено у файл '{output_file}'\")\n"
+      ]
+    }
+  ]
+}
